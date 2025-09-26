@@ -1,0 +1,63 @@
+@import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@300;400;500;600;700&display=swap');
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(to bottom, transparent, rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.app-content {
+  flex: 1;
+  margin-left: 280px; /* Width of expanded sidebar */
+  transition: margin-left 0.2s ease-in-out;
+  min-height: 100vh;
+  padding: 24px;
+  background-color: var(--colorNeutralBackground2, #fafafa);
+}
+
+body.sidebar-collapsed .app-content {
+  margin-left: 60px; /* Width of collapsed sidebar */
+}
+
+/* Enhanced responsiveness with Fluent UI breakpoints */
+@media (max-width: 1200px) {
+  .app-content {
+    margin-left: 60px; /* Collapse sidebar on medium screens */
+  }
+}
+
+@media (max-width: 768px) {
+  .app-content {
+    margin-left: 0;
+    padding: 16px;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .app-content {
+    background-color: var(--colorNeutralBackground2, #1e1e1e);
+  }
+}
