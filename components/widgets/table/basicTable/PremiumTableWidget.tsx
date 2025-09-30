@@ -1698,7 +1698,7 @@ const useStyles = makeStyles({
     boxShadow: tokens.shadow8,
     border: `1px solid ${tokens.colorNeutralStroke2}`,
     overflow: "hidden",
-    height:"100%"
+    height: "100%"
   },
   premiumHeader: {
     padding: "24px",
@@ -1722,15 +1722,15 @@ const useStyles = makeStyles({
     flexDirection: "column",
     flex: 1,
     minHeight: 0,
-    marginBottom:"17px"
+    marginBottom: "17px"
     // maxHeight: "calc(100vh - 300px)",
   },
   table: {
     width: "100%",
     borderCollapse: "collapse",
     flex: 1,
-    minHeight:0,
-    overflowY:"auto"
+    minHeight: 0,
+    overflowY: "auto"
 
   },
   emptyState: {
@@ -1884,15 +1884,19 @@ const useStyles = makeStyles({
     gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
     gap: "16px",
     padding: "16px",
+    scrollbarWidth: 'thin',
+    scrollbarColor: `${tokens.colorNeutralStroke1} transparent`,
   },
   gridCard: {
     padding: "16px",
     border: `1px solid ${tokens.colorNeutralStroke2}`,
     borderRadius: tokens.borderRadiusMedium,
     backgroundColor: tokens.colorNeutralBackground1,
+    height: "210px",
     "&:hover": {
       boxShadow: tokens.shadow4,
     },
+
   },
   bulkActions: {
     marginTop: "16px",
@@ -2064,7 +2068,7 @@ interface PremiumTableWidgetProps {
     className?: string;
     style?: React.CSSProperties;
   };
-  widgetHeight:number
+  widgetHeight: number
 }
 
 const EditableCell = ({
@@ -2926,7 +2930,7 @@ export default function PremiumTableWidget({
 
         <div className={styles.tableWrapper} >
           {viewMode === "grid" ? (
-            <div className={styles.gridContainer} style={{minHeight: 0, overflowY: 'auto' }}>
+            <div className={styles.gridContainer} style={{ minHeight: 0, overflowY: 'auto', height: widgetHeight }} >
               {table.getRowModel().rows.length === 0 ? (
                 <div style={{
                   width: '100%',
@@ -2944,8 +2948,7 @@ export default function PremiumTableWidget({
                 </div>
               ) : (
                 table.getRowModel().rows.map((row) => (
-                  <Card key={row.id} className={styles.gridCard}>
-
+                  <Card key={row.id} className={styles.gridCard} >
                     <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
                       <Checkbox checked={row.getIsSelected()} onChange={row.getToggleSelectedHandler()} />
                       <Text weight="semibold">{row.original.Subject || "No Subject"}</Text>
@@ -2967,154 +2970,154 @@ export default function PremiumTableWidget({
               )}
             </div>
           ) : (
-              <div style={{
-                display: "flex",
-                overflowX: "auto",
-                overflowY: "auto",
-                height: "100%",
-                minHeight: 0,
-                scrollbarWidth: 'thin', scrollbarColor: `${tokens.colorNeutralStroke1} transparent`
-              }}>
-                <table className={styles.table} style={{ tableLayout: "fixed" }}>
-                  <thead className={styles.tableHeader}>
-                    {table.getHeaderGroups().map((headerGroup) => (
-                      <tr key={headerGroup.id}>
-                        {headerGroup.headers.map((header) => (
-                          <th
-                            key={header.id}
-                            className={styles.tableHeaderCell}
-                            style={{
-                              width: header.getSize(),
-                              position: "relative",
-                              minWidth: header.id === "select" ? "30px" : "140px",
-                            }}
-                          >
-                            {header.isPlaceholder ? null : (
-                              <div
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "space-between",
-                                  minHeight: "20px",
-                                }}
-                              >
-                                <div
-                                  style={{ display: "flex", alignItems: "center", gap: "8px", flex: 1, minWidth: 0 }}
-                                >
-                                  {flexRender(header.column.columnDef.header, header.getContext())}
-                                </div>
-                                <div style={{ display: "flex", alignItems: "center", gap: "4px", flexShrink: 0 }}>
-                                  {header.column.getCanSort() && (
-                                    <Button
-                                      appearance="subtle"
-                                      size="small"
-                                      icon={
-                                        header.column.getIsSorted() === "asc" ? (
-                                          <SortAscIcon />
-                                        ) : header.column.getIsSorted() === "desc" ? (
-                                          <SortDescIcon />
-                                        ) : (
-                                          <ArrowUpDownIcon />
-                                        )
-                                      }
-                                      onClick={header.column.getToggleSortingHandler()}
-                                    />
-                                  )}
-                                </div>
-                              </div>
-                            )}
-                            {header.column.getCanResize() && (
-                              <div
-                                onMouseDown={header.getResizeHandler()}
-                                onTouchStart={header.getResizeHandler()}
-                                style={{
-                                  position: "absolute",
-                                  right: 0,
-                                  top: 0,
-                                  height: "100%",
-                                  width: "4px",
-                                  backgroundColor: header.column.getIsResizing()
-                                    ? tokens.colorBrandBackground
-                                    : "transparent",
-                                  cursor: "col-resize",
-                                  userSelect: "none",
-                                  touchAction: "none",
-                                }}
-                              />
-                            )}
-                          </th>
-                        ))}
-                      </tr>
-                    ))}
-                  </thead>
-                  <tbody className={styles.tableBody} style={{ position: "relative" }}>
-                    {table.getRowModel().rows.length === 0 ? (
-                      <tr style={{ height: "450px" }}>
-                        <td
-                          colSpan={table.getAllColumns().length}
+            <div style={{
+              display: "flex",
+              overflowX: "auto",
+              overflowY: "auto",
+              height: "100%",
+              minHeight: 0,
+              scrollbarWidth: 'thin', scrollbarColor: `${tokens.colorNeutralStroke1} transparent`
+            }}>
+              <table className={styles.table} style={{ tableLayout: "fixed" }}>
+                <thead className={styles.tableHeader}>
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <tr key={headerGroup.id}>
+                      {headerGroup.headers.map((header) => (
+                        <th
+                          key={header.id}
+                          className={styles.tableHeaderCell}
                           style={{
-                            height: "100%",
+                            width: header.getSize(),
                             position: "relative",
-                            verticalAlign: "middle",
-                            textAlign: "center",
-                            padding: 0,
+                            minWidth: header.id === "select" ? "30px" : "140px",
                           }}
                         >
-                          <div
-                            style={{
-                              position: "absolute",
-                              top: 0,
-                              left: 0,
-                              right: 0,
-                              bottom: 0,
-                              display: "flex",
-                              flexDirection: "column",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              textAlign: "center",
-                              padding: "32px",
-                              color: tokens.colorNeutralForeground3,
-                            }}
-                          >
-                            <SearchIcon
+                          {header.isPlaceholder ? null : (
+                            <div
                               style={{
-                                width: "48px",
-                                height: "48px",
-                                marginBottom: "16px",
-                                color: tokens.colorNeutralForeground3,
-                              }}
-                            />
-                            <Title3 style={{ marginBottom: "8px" }}>No results found</Title3>
-                            <Text>Try adjusting your search or filter criteria</Text>
-                          </div>
-                        </td>
-                      </tr>
-                    ) : (
-                      table.getRowModel().rows.map((row, index) => (
-                        <tr
-                          key={row.id}
-                          className={`${styles.tableRow} ${row.getIsSelected() ? styles.selectedRow : ""}`}
-                        >
-                          {row.getVisibleCells().map((cell) => (
-                            <td
-                              key={cell.id}
-                              className={styles.tableCell}
-                              style={{
-                                width: cell.column.getSize(),
-                                minWidth: cell.column.id === "select" ? "30px" : "150px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                minHeight: "20px",
                               }}
                             >
-                              <div style={{ minHeight: "40px", display: "flex", alignItems: "center" }}>
-                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                              <div
+                                style={{ display: "flex", alignItems: "center", gap: "8px", flex: 1, minWidth: 0 }}
+                              >
+                                {flexRender(header.column.columnDef.header, header.getContext())}
                               </div>
-                            </td>
-                          ))}
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                              <div style={{ display: "flex", alignItems: "center", gap: "4px", flexShrink: 0 }}>
+                                {header.column.getCanSort() && (
+                                  <Button
+                                    appearance="subtle"
+                                    size="small"
+                                    icon={
+                                      header.column.getIsSorted() === "asc" ? (
+                                        <SortAscIcon />
+                                      ) : header.column.getIsSorted() === "desc" ? (
+                                        <SortDescIcon />
+                                      ) : (
+                                        <ArrowUpDownIcon />
+                                      )
+                                    }
+                                    onClick={header.column.getToggleSortingHandler()}
+                                  />
+                                )}
+                              </div>
+                            </div>
+                          )}
+                          {header.column.getCanResize() && (
+                            <div
+                              onMouseDown={header.getResizeHandler()}
+                              onTouchStart={header.getResizeHandler()}
+                              style={{
+                                position: "absolute",
+                                right: 0,
+                                top: 0,
+                                height: "100%",
+                                width: "4px",
+                                backgroundColor: header.column.getIsResizing()
+                                  ? tokens.colorBrandBackground
+                                  : "transparent",
+                                cursor: "col-resize",
+                                userSelect: "none",
+                                touchAction: "none",
+                              }}
+                            />
+                          )}
+                        </th>
+                      ))}
+                    </tr>
+                  ))}
+                </thead>
+                <tbody className={styles.tableBody} style={{ position: "relative" }}>
+                  {table.getRowModel().rows.length === 0 ? (
+                    <tr style={{ height: "450px" }}>
+                      <td
+                        colSpan={table.getAllColumns().length}
+                        style={{
+                          height: "100%",
+                          position: "relative",
+                          verticalAlign: "middle",
+                          textAlign: "center",
+                          padding: 0,
+                        }}
+                      >
+                        <div
+                          style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            textAlign: "center",
+                            padding: "32px",
+                            color: tokens.colorNeutralForeground3,
+                          }}
+                        >
+                          <SearchIcon
+                            style={{
+                              width: "48px",
+                              height: "48px",
+                              marginBottom: "16px",
+                              color: tokens.colorNeutralForeground3,
+                            }}
+                          />
+                          <Title3 style={{ marginBottom: "8px" }}>No results found</Title3>
+                          <Text>Try adjusting your search or filter criteria</Text>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    table.getRowModel().rows.map((row, index) => (
+                      <tr
+                        key={row.id}
+                        className={`${styles.tableRow} ${row.getIsSelected() ? styles.selectedRow : ""}`}
+                      >
+                        {row.getVisibleCells().map((cell) => (
+                          <td
+                            key={cell.id}
+                            className={styles.tableCell}
+                            style={{
+                              width: cell.column.getSize(),
+                              minWidth: cell.column.id === "select" ? "30px" : "150px",
+                            }}
+                          >
+                            <div style={{ minHeight: "40px", display: "flex", alignItems: "center" }}>
+                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            </div>
+                          </td>
+                        ))}
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
 
