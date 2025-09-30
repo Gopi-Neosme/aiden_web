@@ -313,9 +313,6 @@ const useStyles = makeStyles({
     transition: "all 200ms ease",
     ":hover": {
       backgroundColor: tokens.colorNeutralBackground2Hover,
-      "& $widgetActions": {
-        opacity: 1,
-      },
     },
     ":active": {
       cursor: "grabbing",
@@ -400,13 +397,6 @@ const widgetCatalog: WidgetCategory[] = [
         type: "chart",
         variants: [
           {
-            title: "Line Chart",
-            icon: "📈",
-            description: "Interactive line chart with smooth animations",
-            badge: "Popular",
-            props: { type: "line", color: "#3b82f6", showGrid: true, showPoints: true, smooth: true },
-          },
-          {
             title: "Area Chart",
             icon: "⛰️",
             description: "Filled area chart with gradient effects",
@@ -484,18 +474,78 @@ const widgetCatalog: WidgetCategory[] = [
   },
 ]
 
-const STORAGE_KEY = (userId: string) => `dashboardLayout:${userId}`
+// API helper functions
+const fetchWidgets = async (userId: string): Promise<Widget[]> => {
+  try {
+    const response = await fetch(`/api/widgets/${userId}`);
+    if (response.ok) {
+      const data = await response.json();
+      return data.length > 0 ? data : DEFAULT_WIDGETS;
+    }
+    return DEFAULT_WIDGETS;
+  } catch (error) {
+    console.error('Error fetching widgets:', error);
+    return DEFAULT_WIDGETS;
+  }
+};
+
+const saveWidgets = async (userId: string, widgets: Widget[]): Promise<boolean> => {
+  try {
+    const response = await fetch(`/api/widgets/${userId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ widgets }),
+    });
+    return response.ok;
+  } catch (error) {
+    console.error('Error saving widgets:', error);
+    return false;
+  }
+};
+
+const createWidget = async (userId: string, widget: Widget): Promise<boolean> => {
+  try {
+    const response = await fetch(`/api/widgets/${userId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(widget),
+    });
+    return response.ok;
+  } catch (error) {
+    console.error('Error creating widget:', error);
+    return false;
+  }
+};
+
+const deleteWidget = async (userId: string, widgetId: string): Promise<boolean> => {
+  try {
+    const response = await fetch(`/api/widgets/${userId}/${widgetId}`, {
+      method: 'DELETE',
+    });
+    return response.ok;
+  } catch (error) {
+    console.error('Error deleting widget:', error);
+    return false;
+  }
+};
+
+const resetWidgets = async (userId: string): Promise<boolean> => {
+  try {
+    const response = await fetch(`/api/widgets/${userId}`, {
+      method: 'DELETE',
+    });
+    return response.ok;
+  } catch (error) {
+    console.error('Error resetting widgets:', error);
+    return false;
+  }
+};
 
 const DEFAULT_WIDGETS: Widget[] = [
-  {
-    id: "w-chart-1",
-    type: "chart",
-    title: "Monthly Revenue",
-    badge: "Live",
-    icon: "📈",
-    layout: { i: "w-chart-1", x: 0, y: 0, w: 6, h: 5 },
-    props: { type: "line", color: "#3b82f6", showGrid: true, showPoints: true, smooth: true },
-  },
   {
     id: "w-table-1",
     type: "advanced-table",
@@ -783,17 +833,12 @@ export default function DashboardByUser() {
   // Load saved layout for this user on mount
   useEffect(() => {
     setMounted(true)
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY(userId))
-      if (raw) {
-        const parsed = JSON.parse(raw) as Widget[]
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setWidgets(parsed)
-        }
-      }
-    } catch (error) {
+    fetchWidgets(userId).then((loadedWidgets) => {
+      setWidgets(loadedWidgets)
+    }).catch((error) => {
       console.error("Error loading layout for user:", userId, error)
-    }
+      setWidgets(DEFAULT_WIDGETS)
+    })
   }, [userId])
 
 
@@ -811,7 +856,7 @@ export default function DashboardByUser() {
   }, [])
 
   const addWidget = useCallback(
-    (type: WidgetType, title: string, badge?: string, icon?: string) => {
+    async (type: WidgetType, title: string, badge?: string, icon?: string) => {
       const id = `w-${type}-${Date.now()}`
       const newWidget: Widget = {
         id,
@@ -827,13 +872,16 @@ export default function DashboardByUser() {
           h: 5,
         },
       }
-      setWidgets((prev) => [...prev, newWidget])
+      const success = await createWidget(userId, newWidget)
+      if (success) {
+        setWidgets((prev) => [...prev, newWidget])
+      }
     },
-    [widgets.length],
+    [widgets.length, userId],
   )
 
   const addWidgetWithProps = useCallback(
-    (type: WidgetType, title: string, props?: Record<string, any>, badge?: string, icon?: string) => {
+    async (type: WidgetType, title: string, props?: Record<string, any>, badge?: string, icon?: string) => {
       const id = `w-${type}-${Date.now()}`
       const newWidget: Widget = {
         id,
@@ -850,43 +898,47 @@ export default function DashboardByUser() {
           h: 5,
         },
       }
-      setWidgets((prev) => [...prev, newWidget])
+      const success = await createWidget(userId, newWidget)
+      if (success) {
+        setWidgets((prev) => [...prev, newWidget])
+      }
     },
-    [widgets.length],
+    [widgets.length, userId],
   )
 
-  const removeWidget = useCallback((id: string) => {
-    setWidgets((prev) => prev.filter((w) => w.id !== id))
-  }, [])
+  const removeWidget = useCallback(async (id: string) => {
+    const success = await deleteWidget(userId, id)
+    if (success) {
+      setWidgets((prev) => prev.filter((w) => w.id !== id))
+    }
+  }, [userId])
 
-  const resetDashboard = () => {
-    setWidgets(DEFAULT_WIDGETS)
-    try {
-      localStorage.removeItem(STORAGE_KEY(userId))
-    } catch {
-      // Handle localStorage errors silently
+  const resetDashboard = async () => {
+    const success = await resetWidgets(userId)
+    if (success) {
+      setWidgets(DEFAULT_WIDGETS)
+      console.log(`Reset dashboard for ${userId}`)
+    } else {
+      console.error("Failed to reset dashboard")
     }
   }
 
-  const saveDashboardLayout = () => {
-    try {
-      localStorage.setItem(STORAGE_KEY(userId), JSON.stringify(widgets))
-      // Show success feedback
+  const saveDashboardLayout = async () => {
+    const success = await saveWidgets(userId, widgets)
+    if (success) {
       console.log(`Saved layout for ${userId}:`, widgets)
-    } catch (error) {
-      console.error("Failed to save layout:", error)
+    } else {
+      console.error("Failed to save layout")
     }
   }
 
-  const debugStoredLayouts = () => {
-    console.log("=== Stored Layouts Debug ===")
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i)
-      if (key && key.startsWith("dashboardLayout:")) {
-        const user = key.replace("dashboardLayout:", "")
-        const data = localStorage.getItem(key)
-        console.log(`User: ${user}`, data ? JSON.parse(data) : "No data")
-      }
+  const debugStoredLayouts = async () => {
+    console.log("=== Database Widgets Debug ===")
+    try {
+      const dbWidgets = await fetchWidgets(userId)
+      console.log(`Database widgets for ${userId}:`, dbWidgets)
+    } catch (error) {
+      console.error("Error fetching widgets for debug:", error)
     }
     console.log("Current userId:", userId)
     console.log("Current widgets:", widgets)
@@ -897,9 +949,13 @@ export default function DashboardByUser() {
   // Auto-save when widgets change
   useEffect(() => {
     if (mounted && widgets.length > 0) {
-      saveDashboardLayout()
+      const timeoutId = setTimeout(() => {
+        saveWidgets(userId, widgets)
+      }, 1000) // Debounce saves by 1 second
+
+      return () => clearTimeout(timeoutId)
     }
-  }, [widgets, mounted])
+  }, [widgets, mounted, userId])
 
   // Prevent SSR issues with react-grid-layout
   if (!mounted) {

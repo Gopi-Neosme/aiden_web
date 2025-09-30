@@ -42,8 +42,8 @@ const useStyles = makeStyles({
     padding: "24px",
     width: "800px",
     marginTop: "8px",
-    maxHeight: "80vh",
-    overflow: "hidden",
+    scrollbarWidth: 'thin',
+    scrollbarColor: `${tokens.colorNeutralStroke1} transparent`
   },
   filterHeader: {
     display: "flex",
@@ -57,8 +57,6 @@ const useStyles = makeStyles({
     display: "grid",
     gridTemplateColumns: "1fr 1fr",
     gap: "24px",
-    maxHeight: "50vh",
-    overflowY: "auto",
     marginBottom: "24px",
   },
   filterSection: {
@@ -170,10 +168,12 @@ interface GridFilterPopupProps {
   isFilterOpen: boolean
   setIsFilterOpen: (open: boolean) => void
   table: any
+  widgetHeight: number
 }
 
-export const GridFilterPopup: React.FC<GridFilterPopupProps> = ({ isFilterOpen, setIsFilterOpen, table }) => {
+export const GridFilterPopup: React.FC<GridFilterPopupProps> = ({ isFilterOpen, setIsFilterOpen, table, widgetHeight }) => {
   const styles = useStyles()
+
 
   if (!isFilterOpen) return null
 
@@ -181,7 +181,7 @@ export const GridFilterPopup: React.FC<GridFilterPopupProps> = ({ isFilterOpen, 
 
   return (
     <FluentProvider>
-      <div className={styles.filterPopup}>
+      <div className={styles.filterPopup} style={{ maxHeight: `${widgetHeight - 200}px`, minHeight: 0, overflowY: "auto" }}>
         <div className={styles.filterHeader}>
           <div>
             <Text size={500} weight="semibold" style={{ display: "flex", alignItems: "center", gap: "8px" }}>

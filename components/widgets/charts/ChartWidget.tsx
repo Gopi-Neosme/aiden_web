@@ -476,7 +476,10 @@ const DonutChart: React.FC<DonutChartProps> = ({ data, onRemove }) => {
       />
       <div className={styles.donutContainer}>
         <FUDonut
-          data={donutData}
+          data={{
+            chartTitle: 'Compliance Status',
+            chartData: donutData
+          }}
           width={300}
           height={200}
           hideLegend={false}
@@ -512,15 +515,15 @@ const ChartWidget: React.FC<ChartWidgetProps> = ({
   const { fullJsonData, endpointData, loading, error, refetch } = useEndpointData()
 
   const processedData = useMemo(() => {
-    if (!fullJsonData) return []
+    if (!endpointData) return []
 
-    const allSubjects = fullJsonData.flatMap(entry => entry.activity.Subjects)
+    const allSubjects = endpointData.Subjects
 
     switch (currentType) {
       case "bar":
         return getAssessmentStatusCounts(allSubjects)
       case "area":
-        return getMonthlyComplianceData(fullJsonData)
+        return getMonthlyComplianceData(fullJsonData || [])
       case "pie":
       case "donut":
         return getPackageTypeCounts(allSubjects)
@@ -529,7 +532,7 @@ const ChartWidget: React.FC<ChartWidgetProps> = ({
       case "compliance-overview":
         return getComplianceStatusCounts(allSubjects)
       case "monthly-compliance":
-        return getMonthlyComplianceData(fullJsonData)
+        return getMonthlyComplianceData(fullJsonData || [])
       case "package-types":
         return getPackageTypeCounts(allSubjects)
       case "assessment-status":
@@ -546,7 +549,7 @@ const ChartWidget: React.FC<ChartWidgetProps> = ({
       default:
         return []
     }
-  }, [fullJsonData, currentType, strokeColor])
+  }, [endpointData, fullJsonData, currentType, strokeColor])
 
   const systemInfo = useMemo(() => {
     if (!fullJsonData || fullJsonData.length === 0) return null
@@ -559,8 +562,8 @@ const ChartWidget: React.FC<ChartWidgetProps> = ({
     // Handle Fluent UI AreaChart for stacked area charts
     if (currentType === "area" || currentType === "monthly-compliance") {
       if (typeof processedData !== "object" || Array.isArray(processedData) ||
-          !Object.values(processedData)[0] || typeof Object.values(processedData)[0] !== "object" ||
-          !("compliant" in Object.values(processedData)[0])) {
+        !Object.values(processedData)[0] || typeof Object.values(processedData)[0] !== "object" ||
+        !("compliant" in Object.values(processedData)[0])) {
         return (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '200px' }}>
             <Text>No chart data available</Text>
@@ -781,6 +784,88 @@ const ChartWidget: React.FC<ChartWidgetProps> = ({
   if (!hasData) {
     return (
       <Card className={styles.widget}>
+        <CardHeader
+          className={styles.widgetHeader}
+          header={
+            <div
+              {...dragHandleProps}
+              style={{
+                cursor: "grab",
+                display: "flex",
+                alignItems: "center",
+                flex: 1,
+                minWidth: 0,
+                ...dragHandleProps?.style,
+              }}
+            >
+              <Text weight="semibold">{title}</Text>
+            </div>
+          }
+          action={
+            <div className={styles.widgetActions}>
+              <Dropdown
+                value={chartTypeOptions.find((opt) => opt.value === currentType)?.text || "Bar"}
+                className={styles.dropdown}
+                onOptionSelect={(_, data) => setCurrentType(data.optionValue || "bar")}
+              >
+                {chartTypeOptions.map((option) => (
+                  <Option key={option.value} value={option.value}>
+                    {option.text}
+                  </Option>
+                ))}
+                <hr />
+                {endpointChartOptions.map((option) => (
+                  <Option key={option.value} value={option.value}>
+                    {option.text}
+                  </Option>
+                ))}
+              </Dropdown>
+
+              <FluentTooltip content="Toggle grid" relationship="description">
+                <Button
+                  icon={<Grid20Regular />}
+                  appearance="subtle"
+                  size="small"
+                  onClick={() => setGrid((v) => !v)}
+                  className={styles.iconButton}
+                />
+              </FluentTooltip>
+
+              <FluentTooltip content="Refresh data" relationship="description">
+                <Button
+                  icon={<RefreshCw className={loading ? "animate-spin" : ""} />}
+                  appearance="subtle"
+                  size="small"
+                  onClick={refetch}
+                  disabled={loading}
+                  className={styles.iconButton}
+                />
+              </FluentTooltip>
+
+              <FluentTooltip content="Chart settings" relationship="description">
+                <Button
+                  icon={<Settings20Regular />}
+                  appearance="subtle"
+                  size="small"
+                  onClick={() => setShowSettings((s) => !s)}
+                  className={styles.iconButton}
+                />
+              </FluentTooltip>
+
+              {onRemove && (
+                <FluentTooltip content="Remove widget" relationship="description">
+                  <Button
+                    icon={<Dismiss20Regular />}
+                    appearance="subtle"
+                    size="small"
+                    onClick={onRemove}
+                    className={styles.iconButton}
+                  />
+                </FluentTooltip>
+              )}
+            </div>
+          }
+        />
         <div className={styles.loadingContainer}>
           <ChartIcon size={24} className={loading ? "animate-spin" : ""} />
           <Text>{loading ? "Loading data..." : error ? "Error loading data" : "No data available"}</Text>

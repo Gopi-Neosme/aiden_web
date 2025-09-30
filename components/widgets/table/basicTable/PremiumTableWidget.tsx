@@ -2875,7 +2875,7 @@ export default function PremiumTableWidget({
                 <Button appearance="secondary" icon={<FilterIcon />} onClick={() => setIsFilterOpen(!isFilterOpen)}>
                   Filter
                 </Button>
-                <GridFilterPopup isFilterOpen={isFilterOpen} setIsFilterOpen={setIsFilterOpen} table={table} />
+                <GridFilterPopup isFilterOpen={isFilterOpen} setIsFilterOpen={setIsFilterOpen} table={table} widgetHeight={widgetHeight} />
               </div>
 
               {/* Column Management */}

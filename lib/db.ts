@@ -3,20 +3,26 @@ import sql from 'mssql';
 // Azure SQL Server configuration
 const config: sql.config = {
   server: 'aidenvision-dev.database.windows.net',
-  user: 'testsql',
+  user: 'testsqluser',
   password: 'testtest@123',
   database: 'AidenVisionDevDB',
   options: {
     encrypt: true, // Use encryption
     trustServerCertificate: false, // Do not trust self-signed certificates
     enableArithAbort: true,
-    connectTimeout: 30000,
-    requestTimeout: 30000,
+    connectTimeout: 10000, // Reduced to 10 seconds
+    requestTimeout: 15000, // Reduced to 15 seconds
+    cancelTimeout: 5000, // Cancel query after 5 seconds
   },
   pool: {
-    max: 10,
-    min: 0,
-    idleTimeoutMillis: 30000,
+    max: 20, // Increased pool size
+    min: 2, // Keep minimum 2 connections
+    idleTimeoutMillis: 60000, // Increased idle timeout
+    acquireTimeoutMillis: 10000, // Timeout for acquiring connection
+    createTimeoutMillis: 10000, // Timeout for creating connection
+    destroyTimeoutMillis: 5000, // Timeout for destroying connection
+    reapIntervalMillis: 1000, // Check for idle connections every second
+    createRetryIntervalMillis: 200, // Retry connection creation every 200ms
   },
 };
 
@@ -38,18 +44,24 @@ export async function initializeDatabase() {
     const pool = await getPool();
     const request = pool.request();
 
-    // Create a simple users table as an example (only if it doesn't exist)
-    // const createUsersTable = `
-    //   IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='users' AND xtype='U')
-    //   CREATE TABLE users (
-    //     id INT IDENTITY(1,1) PRIMARY KEY,
-    //     name NVARCHAR(255) NOT NULL,
-    //     email NVARCHAR(255) UNIQUE NOT NULL,
-    //     created_at DATETIME2 DEFAULT GETDATE()
-    //   )
-    // `;
+    // Create widgets table for storing dashboard widgets
+    const createWidgetsTable = `
+      IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='widgets' AND xtype='U')
+      CREATE TABLE widgets (
+        id NVARCHAR(255) PRIMARY KEY,
+        user_id NVARCHAR(255) NOT NULL,
+        type NVARCHAR(50) NOT NULL,
+        title NVARCHAR(255) NOT NULL,
+        badge NVARCHAR(50),
+        icon NVARCHAR(50),
+        layout NVARCHAR(MAX) NOT NULL, -- JSON string for layout
+        props NVARCHAR(MAX), -- JSON string for widget properties
+        created_at DATETIME2 DEFAULT GETDATE(),
+        updated_at DATETIME2 DEFAULT GETDATE()
+      )
+    `;
 
-    // await request.query(createUsersTable);
+    await request.query(createWidgetsTable);
     console.log('Database initialized successfully');
   } catch (error) {
     console.error('Database initialization failed:', error);

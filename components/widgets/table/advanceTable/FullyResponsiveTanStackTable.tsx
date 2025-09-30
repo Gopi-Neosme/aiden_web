@@ -3437,8 +3437,8 @@ const useStyles = makeStyles({
     boxShadow: tokens.shadow64,
     maxWidth: "1024px",
     width: "100%",
-    maxHeight: "80vh",
-    overflow: "hidden",
+    scrollbarWidth: 'thin',
+    scrollbarColor: `${tokens.colorNeutralStroke1} transparent`
   },
   modalHeader: {
     padding: `${tokens.spacingVerticalM} ${tokens.spacingVerticalXL}`,
@@ -3452,6 +3452,8 @@ const useStyles = makeStyles({
   modalBody: {
     padding: `${tokens.spacingVerticalM} ${tokens.spacingVerticalXL}`,
     overflowY: "auto",
+    scrollbarWidth: 'thin',
+    scrollbarColor: `${tokens.colorNeutralStroke1} transparent`
     // maxHeight: "60vh",
   },
   modalGrid: {
@@ -3485,6 +3487,8 @@ const useStyles = makeStyles({
     gap: tokens.spacingVerticalS,
     maxHeight: "240px",
     overflowY: "auto",
+    scrollbarWidth: 'thin',
+    scrollbarColor: `${tokens.colorNeutralStroke1} transparent`,
     border: `1px solid ${tokens.colorNeutralStroke2}`,
     borderRadius: tokens.borderRadiusSmall,
     padding: tokens.spacingVerticalS,
@@ -3585,6 +3589,8 @@ const useStyles = makeStyles({
     gap: tokens.spacingVerticalXXS,
     maxHeight: "128px",
     overflowY: "auto",
+    scrollbarWidth: 'thin',
+    scrollbarColor: `${tokens.colorNeutralStroke1} transparent`,
     border: `1px solid ${tokens.colorNeutralStroke2}`,
     borderRadius: tokens.borderRadiusSmall,
     padding: tokens.spacingVerticalS,
@@ -3917,12 +3923,14 @@ const ColumnManagementModal = ({
   table,
   columnOrder,
   setColumnOrder,
+  widgetHeight
 }: {
   isOpen: boolean
   onClose: () => void
   table: Table<Subject>
   columnOrder: string[]
   setColumnOrder: (order: string[]) => void
+  widgetHeight: number
 }) => {
   const styles = useStyles()
   const [tempOrder, setTempOrder] = useState<string[]>(columnOrder)
@@ -3994,7 +4002,7 @@ const ColumnManagementModal = ({
 
   return (
     <div className={styles.modal}>
-      <div className={styles.modalContent}>
+      <div className={styles.modalContent} style={{ maxHeight: `${widgetHeight - 200}px`, minHeight: 0, overflowY: "auto" }}>
         <div className={styles.modalHeader}>
           <div className={styles.modalHeaderContent}>
             <Title2>Manage Columns</Title2>
@@ -4099,9 +4107,10 @@ interface AdvancedFilterModalProps {
   table: Table<Subject>
   onApplyFilters: (filters: any) => void
   data: Subject[]
+  widgetHeight: number
 }
 
-const AdvancedFilterModal: React.FC<AdvancedFilterModalProps> = ({ isOpen, onClose, table, onApplyFilters, data }) => {
+const AdvancedFilterModal: React.FC<AdvancedFilterModalProps> = ({ isOpen, onClose, table, onApplyFilters, data, widgetHeight }) => {
   const styles = useStyles()
   const [filters, setFilters] = useState({
     Subject: [] as string[],
@@ -4193,8 +4202,8 @@ const AdvancedFilterModal: React.FC<AdvancedFilterModalProps> = ({ isOpen, onClo
   if (!isOpen) return null
 
   return (
-    <div className={styles.modal}>
-      <div className={styles.modalContent}>
+    <div className={styles.modal} >
+      <div className={styles.modalContent} style={{ maxHeight: `${widgetHeight - 200}px`, minHeight: 0, overflowY: "auto" }}>
         <div className={styles.modalHeader}>
           <div className={styles.modalHeaderContent}>
             <div>
@@ -5601,6 +5610,7 @@ const FullyResponsiveFluentTable: React.FC<TanstackTableWidgetProps> = ({
           table={table}
           columnOrder={columnOrder}
           setColumnOrder={setColumnOrder}
+          widgetHeight={widgetHeight}
         />
 
         <AdvancedFilterModal
@@ -5609,6 +5619,7 @@ const FullyResponsiveFluentTable: React.FC<TanstackTableWidgetProps> = ({
           table={table}
           onApplyFilters={applyAdvancedFilters}
           data={data}
+          widgetHeight={widgetHeight}
         />
 
         <DataManagementModal
