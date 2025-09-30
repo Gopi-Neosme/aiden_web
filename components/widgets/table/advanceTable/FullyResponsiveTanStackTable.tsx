@@ -39,7 +39,11 @@
 //   makeStyles,
 //   tokens,
 //   Label,
-//   Textarea, // Added Textarea import
+//   Textarea,
+//   Tooltip as FluentTooltip,
+//   SearchBox,
+//   shorthands,
+//   Title3,
 // } from "@fluentui/react-components"
 
 // // Fluent UI Icons
@@ -70,10 +74,12 @@
 //   ArrowRight20Regular,
 //   ChevronDoubleLeft20Regular,
 //   ChevronDoubleRight20Regular,
+//   Table20Regular,
 // } from "@fluentui/react-icons"
 
 // // Lucide icons for fallbacks where Fluent doesn't have exact matches
-// import { GripVertical } from "lucide-react"
+// import { GripVertical, SearchIcon } from "lucide-react"
+// import { Stack } from "@fluentui/react"
 
 // // Define interfaces for endpoint data
 // interface Fact {
@@ -100,6 +106,16 @@
 //   id: string // Added for unique identification
 // }
 
+// interface TanstackTableWidgetProps {
+//   title?: string
+//   onRemove?: () => void
+//   dragHandleProps?: {
+//     className?: string
+//     style?: React.CSSProperties
+//   }
+//   widgetHeight: number
+// }
+
 // interface EndpointData {
 //   Facts: Fact[]
 //   ComboId: string
@@ -117,6 +133,8 @@
 //     padding: tokens.spacingVerticalXXL,
 //     backgroundColor: tokens.colorNeutralBackground1,
 //     minHeight: "100vh",
+//     display: "flex",
+//     flexDirection: "column",
 //   },
 //   header: {
 //     display: "flex",
@@ -136,6 +154,10 @@
 //     flexWrap: "wrap",
 //     alignItems: "center",
 //     gap: tokens.spacingHorizontalM,
+//   },
+//   iconButton: {
+//     minWidth: "auto",
+//     ...shorthands.padding(tokens.spacingVerticalXS, tokens.spacingHorizontalXS),
 //   },
 //   comboId: {
 //     marginBottom: tokens.spacingVerticalM,
@@ -238,7 +260,7 @@
 //     pointerEvents: "none",
 //   },
 //   searchInput: {
-//     paddingLeft: "32px",
+//     width: "100%"
 //   },
 //   bulkActions: {
 //     display: "flex",
@@ -253,10 +275,12 @@
 //     backgroundColor: tokens.colorNeutralBackground1,
 //     borderRadius: tokens.borderRadiusMedium,
 //     border: `1px solid ${tokens.colorNeutralStroke2}`,
-//     overflow: "hidden",
+//     display: "flex", // Added flex to make it a flex container
+//     flexDirection: "column", // Stack children vertically
+//     flex: 1, // Allow table container to grow and shrink
+//     minHeight: 0, // Allow flex item to shrink
 //   },
-//   tableWrapper:
-//   {
+//   tableWrapper: {
 //     width: "100%",
 //     overflowX: "auto",
 //     flex: 1,
@@ -267,8 +291,7 @@
 //     borderCollapse: "collapse",
 //     tableLayout: "fixed",
 //   },
-//   tableHeader:
-//   {
+//   tableHeader: {
 //     backgroundColor: tokens.colorNeutralBackground2,
 //     borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
 //     position: "sticky",
@@ -407,16 +430,24 @@
 //     fontSize: tokens.fontSizeBase100,
 //   },
 //   emptyState: {
-//     padding: `${tokens.spacingVerticalXXL} ${tokens.spacingHorizontalM}`,
+//     position: "absolute",
+//     top: "50%",
+//     left: "50%",
+//     transform: "translate(-50%, -50%)",
 //     textAlign: "center",
-//     color: tokens.colorNeutralForeground2,
+//     padding: "32px",
+//     color: tokens.colorNeutralForeground3,
+//     zIndex: 1,
+//     display: "flex",
+//     flexDirection: "column",
+//     alignItems: "center",
+//     justifyContent: "center",
 //   },
 //   emptyStateIcon: {
 //     marginBottom: tokens.spacingVerticalS,
 //     color: tokens.colorNeutralForeground3,
 //   },
-//   pagination:
-//   {
+//   pagination: {
 //     backgroundColor: tokens.colorNeutralBackground2,
 //     padding: `${tokens.spacingVerticalM} ${tokens.spacingHorizontalS}`,
 //     borderTop: `1px solid ${tokens.colorNeutralStroke2}`,
@@ -430,8 +461,7 @@
 //       flexDirection: "row",
 //       alignItems: "center",
 //       justifyContent: "space-between",
-//     }
-//     ,
+//     },
 //   },
 //   paginationInfo: {
 //     display: "flex",
@@ -1758,7 +1788,12 @@
 //   )
 // }
 
-// export default function FullyResponsiveFluentTable() {
+// const FullyResponsiveFluentTable: React.FC<TanstackTableWidgetProps> = ({
+//   title = "Tanstack Table",
+//   onRemove,
+//   dragHandleProps,
+//   widgetHeight
+// }) => {
 //   const styles = useStyles()
 //   const [data, setData] = useState<Subject[]>([])
 //   const [facts, setFacts] = useState<Fact[]>([])
@@ -1800,6 +1835,8 @@
 //   const [columnManagementOpen, setColumnManagementOpen] = useState(false)
 //   const [advancedFiltersOpen, setAdvancedFiltersOpen] = useState(false)
 //   const [dataManagementOpen, setDataManagementOpen] = useState(false)
+
+//   console.log("widgetHeight", widgetHeight)
 
 //   // Fetch data from endpoint.json
 //   useEffect(() => {
@@ -2150,11 +2187,57 @@
 
 //   return (
 //     <FluentProvider theme={webLightTheme}>
-//       <div className={styles.container}>
+//       <Stack
+//         horizontal
+//         horizontalAlign="space-between"
+//         verticalAlign="center"
+//         style={{
+//           width: '100%',
+//           padding: tokens.spacingVerticalM,
+//           backgroundColor: tokens.colorNeutralBackground2,
+//           borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
+//         }}
+//       >
+//         {/* Drag handle area - only this area should be draggable */}
+//         <Stack
+//           horizontal
+//           verticalAlign="center"
+//           {...dragHandleProps}
+//           style={{
+//             flex: 1,
+//             cursor: "grab",
+//             ...dragHandleProps?.style,
+//           }}
+//         >
+//           <Table20Regular style={{ marginRight: tokens.spacingHorizontalS, color: tokens.colorBrandForeground1 }} />
+//           <Text size={500} style={{ fontWeight: 600 }}>
+//             {title}
+//           </Text>
+//         </Stack>
+
+//         {onRemove && (
+//           <FluentTooltip content="Remove widget" relationship="description">
+//             <Button
+//               icon={<Dismiss20Regular />}
+//               appearance="subtle"
+//               size="small"
+//               onClick={onRemove}
+//             />
+//           </FluentTooltip>
+//         )}
+//       </Stack>
+//       <div className={styles.container} style={{
+//         padding: tokens.spacingVerticalXXL,
+//         display: 'flex',
+//         flexDirection: 'column',
+//       }}>
 //         <div className={styles.header}>
 //           <div className={styles.headerTitle}>
-//             <Building20Regular style={{ fontSize: "40px", color: tokens.colorBrandForeground1 }} />
-//             <Title1>Endpoint Subjects</Title1>
+//             <div className={styles.comboId}>
+//               <Text>
+//                 Combo ID: <Text font="monospace">{comboId}</Text>
+//               </Text>
+//             </div>
 //           </div>
 //           <div className={styles.headerActions}>
 //             <Button appearance="primary" icon={<ArrowDownload20Regular />} onClick={() => setDataManagementOpen(true)}>
@@ -2166,11 +2249,7 @@
 //           </div>
 //         </div>
 
-//         <div className={styles.comboId}>
-//           <Text>
-//             Combo ID: <Text font="monospace">{comboId}</Text>
-//           </Text>
-//         </div>
+
 
 //         {/* Facts Display */}
 //         <div className={styles.factsGrid}>
@@ -2275,10 +2354,16 @@
 //         <div className={styles.filtersRow}>
 //           <div className={styles.searchContainer}>
 //             <Search20Regular className={styles.searchIcon} />
-//             <Input
+//             {/* <Input
 //               placeholder="Search subjects, packages..."
 //               value={globalFilter ?? ""}
 //               onChange={(e) => setGlobalFilter(e.target.value)}
+//               className={styles.searchInput}
+//             /> */}
+//             <SearchBox
+//               placeholder="Search subjects, packages..."
+//               value={globalFilter ?? ""}
+//               onChange={(e, data) => setGlobalFilter(data.value)}
 //               className={styles.searchInput}
 //             />
 //           </div>
@@ -2414,153 +2499,159 @@
 //         )}
 
 //         {/* Main Table */}
-//         <div className={styles.tableContainer}>
+//         <div className={styles.tableContainer} style={{ height: `calc(${widgetHeight}px - 500px)` }}>
 //           <div className={styles.tableWrapper}>
-//             <table ref={tableRef} className={styles.table}>
-//               <thead className={styles.tableHeader}>
-//                 {table.getHeaderGroups().map((headerGroup) => (
-//                   <tr key={headerGroup.id}>
-//                     {headerGroup.headers.map((header) => (
-//                       <th
-//                         key={header.id}
-//                         className={styles.tableHeaderCell}
-//                         style={{
-//                           width: header.getSize() !== 0 ? header.getSize() : undefined,
-//                           minWidth: "120px", // Ensure minimum width for all columns
-//                         }}
-//                       >
-//                         {header.isPlaceholder ? null : (
-//                           <>
-//                             <div className={styles.tableHeaderContent}>
-//                               <div
-//                                 style={{
-//                                   wordBreak: "break-word",
-//                                   overflow: "hidden",
-//                                   textOverflow: "ellipsis",
-//                                   whiteSpace: "nowrap",
-//                                   flex: 1,
-//                                   minWidth: 0, // Allow flex item to shrink
-//                                 }}
-//                                 onDoubleClick={() => header.column.resetSize()}
-//                                 title={
-//                                   typeof header.column.columnDef.header === "string"
-//                                     ? header.column.columnDef.header
-//                                     : ""
-//                                 }
-//                               >
-//                                 {flexRender(header.column.columnDef.header, header.getContext())}
-//                               </div>
-
-//                               <div className={styles.tableHeaderActions}>
-//                                 {header.column.getCanSort() && (
-//                                   <Button
-//                                     appearance="subtle"
-//                                     size="small"
-//                                     icon={
-//                                       header.column.getIsSorted() === "asc" ? (
-//                                         <ArrowSortUp20Regular />
-//                                       ) : header.column.getIsSorted() === "desc" ? (
-//                                         <ArrowSortDown20Regular />
-//                                       ) : (
-//                                         <ArrowSort20Regular />
-//                                       )
-//                                     }
-//                                     onClick={header.column.getToggleSortingHandler()}
-//                                     title="Sort column"
-//                                   />
-//                                 )}
-//                               </div>
-//                             </div>
-//                             {header.column.getCanFilter() && (
-//                               <div className={styles.filterInput}>
-//                                 <Input
-//                                   size="small"
-//                                   placeholder="Filter..."
-//                                   value={(header.column.getFilterValue() as string) || ""}
-//                                   onChange={(e) => header.column.setFilterValue(e.target.value)}
-//                                   onClick={(e) => e.stopPropagation()}
-//                                 />
-//                               </div>
-//                             )}
-//                           </>
-//                         )}
-
-//                         <div
-//                           onMouseDown={header.getResizeHandler()}
-//                           onTouchStart={header.getResizeHandler()}
-//                           className={`${styles.columnResizer} ${header.column.getIsResizing() ? styles.columnResizerActive : ""}`}
+//             {table.getRowModel().rows.length === 0 ? (
+//               <div style={{
+//                 width: '100%',
+//                 height: '100%',
+//                 display: 'flex',
+//                 alignItems: 'center',
+//                 justifyContent: 'center',
+//                 flexDirection: "column"
+//               }}>
+//                 <div className={styles.emptyState}>
+//                   <SearchIcon className={styles.emptyStateIcon} />
+//                   <Title3 style={{ marginBottom: "8px" }}>No results found</Title3>
+//                   <Text>Try adjusting your search or filter criteria</Text>
+//                 </div>
+//               </div>
+//             ) : (
+//               <table ref={tableRef} className={styles.table}>
+//                 <thead className={styles.tableHeader}>
+//                   {table.getHeaderGroups().map((headerGroup) => (
+//                     <tr key={headerGroup.id}>
+//                       {headerGroup.headers.map((header) => (
+//                         <th
+//                           key={header.id}
+//                           className={styles.tableHeaderCell}
 //                           style={{
-//                             position: "absolute",
-//                             right: 0,
-//                             top: 0,
-//                             height: "100%",
-//                             width: "5px",
-//                             cursor: "col-resize",
-//                             userSelect: "none",
-//                             touchAction: "none",
-//                             backgroundColor: header.column.getIsResizing()
-//                               ? tokens.colorBrandBackground
-//                               : "transparent",
+//                             width: header.getSize() !== 0 ? header.getSize() : undefined,
+//                             minWidth: "120px", // Ensure minimum width for all columns
 //                           }}
-//                         />
-//                       </th>
-//                     ))}
-//                   </tr>
-//                 ))}
-//               </thead>
+//                         >
+//                           {header.isPlaceholder ? null : (
+//                             <>
+//                               <div className={styles.tableHeaderContent}>
+//                                 <div
+//                                   style={{
+//                                     wordBreak: "break-word",
+//                                     overflow: "hidden",
+//                                     textOverflow: "ellipsis",
+//                                     whiteSpace: "nowrap",
+//                                     flex: 1,
+//                                     minWidth: 0, // Allow flex item to shrink
+//                                   }}
+//                                   onDoubleClick={() => header.column.resetSize()}
+//                                   title={
+//                                     typeof header.column.columnDef.header === "string"
+//                                       ? header.column.columnDef.header
+//                                       : ""
+//                                   }
+//                                 >
+//                                   {flexRender(header.column.columnDef.header, header.getContext())}
+//                                 </div>
 
-//               <tbody className={styles.tableBody}>
-//                 {table.getRowModel().rows.map((row, index) => (
-//                   <tr
-//                     key={row.id}
-//                     className={`
+//                                 <div className={styles.tableHeaderActions}>
+//                                   {header.column.getCanSort() && (
+//                                     <Button
+//                                       appearance="subtle"
+//                                       size="small"
+//                                       icon={
+//                                         header.column.getIsSorted() === "asc" ? (
+//                                           <ArrowSortUp20Regular />
+//                                         ) : header.column.getIsSorted() === "desc" ? (
+//                                           <ArrowSortDown20Regular />
+//                                         ) : (
+//                                           <ArrowSort20Regular />
+//                                         )
+//                                       }
+//                                       onClick={header.column.getToggleSortingHandler()}
+//                                       title="Sort column"
+//                                     />
+//                                   )}
+//                                 </div>
+//                               </div>
+//                               {header.column.getCanFilter() && (
+//                                 <div className={styles.filterInput}>
+//                                   <Input
+//                                     size="small"
+//                                     placeholder="Filter..."
+//                                     value={(header.column.getFilterValue() as string) || ""}
+//                                     onChange={(e) => header.column.setFilterValue(e.target.value)}
+//                                     onClick={(e) => e.stopPropagation()}
+//                                   />
+//                                 </div>
+//                               )}
+//                             </>
+//                           )}
+
+//                           <div
+//                             onMouseDown={header.getResizeHandler()}
+//                             onTouchStart={header.getResizeHandler()}
+//                             className={`${styles.columnResizer} ${header.column.getIsResizing() ? styles.columnResizerActive : ""}`}
+//                             style={{
+//                               position: "absolute",
+//                               right: 0,
+//                               top: 0,
+//                               height: "100%",
+//                               width: "5px",
+//                               cursor: "col-resize",
+//                               userSelect: "none",
+//                               touchAction: "none",
+//                               backgroundColor: header.column.getIsResizing()
+//                                 ? tokens.colorBrandBackground
+//                                 : "transparent",
+//                             }}
+//                           />
+//                         </th>
+//                       ))}
+//                     </tr>
+//                   ))}
+//                 </thead>
+
+//                 <tbody className={styles.tableBody} style={{ overflowY: "auto" }}  >
+//                   {table.getRowModel().rows.map((row, index) => (
+//                     <tr
+//                       key={row.id}
+//                       className={`
 //                       ${styles.tableRow}
 //                       ${row.getIsSelected() ? styles.tableRowSelected : ""}
 //                     `}
-//                   >
-//                     {row.getVisibleCells().map((cell) => (
-//                       <td
-//                         key={cell.id}
-//                         className={`
+//                     >
+//                       {row.getVisibleCells().map((cell) => (
+//                         <td
+//                           key={cell.id}
+//                           className={`
 //                           ${styles.tableCell}
 //                           ${cell.getIsGrouped() ? styles.groupedCell : ""}
 //                           ${cell.getIsAggregated() ? styles.aggregatedCell : ""}
 //                           ${cell.getIsPlaceholder() ? styles.placeholderCell : ""}
 //                         `}
-//                         style={{ width: cell.column.getSize() }}
-//                       >
-//                         {cell.getIsGrouped() ? (
-//                           <button onClick={row.getToggleExpandedHandler()} className={styles.groupButton}>
-//                             {row.getIsExpanded() ? <ChevronDown20Regular /> : <ChevronRight20Regular />}
-//                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
-//                             <span className={styles.groupCount}>{row.subRows.length}</span>
-//                           </button>
-//                         ) : cell.getIsAggregated() ? (
-//                           flexRender(
-//                             cell.column.columnDef.aggregatedCell ?? cell.column.columnDef.cell,
-//                             cell.getContext(),
-//                           )
-//                         ) : cell.getIsPlaceholder() ? null : (
-//                           flexRender(cell.column.columnDef.cell, cell.getContext())
-//                         )}
-//                       </td>
-//                     ))}
-//                   </tr>
-//                 ))}
+//                           style={{ width: cell.column.getSize() }}
+//                         >
+//                           {cell.getIsGrouped() ? (
+//                             <button onClick={row.getToggleExpandedHandler()} className={styles.groupButton}>
+//                               {row.getIsExpanded() ? <ChevronDown20Regular /> : <ChevronRight20Regular />}
+//                               {flexRender(cell.column.columnDef.cell, cell.getContext())}
+//                               <span className={styles.groupCount}>{row.subRows.length}</span>
+//                             </button>
+//                           ) : cell.getIsAggregated() ? (
+//                             flexRender(
+//                               cell.column.columnDef.aggregatedCell ?? cell.column.columnDef.cell,
+//                               cell.getContext(),
+//                             )
+//                           ) : cell.getIsPlaceholder() ? null : (
+//                             flexRender(cell.column.columnDef.cell, cell.getContext())
+//                           )}
+//                         </td>
+//                       ))}
+//                     </tr>
+//                   ))}
 
-//                 {table.getRowModel().rows.length === 0 && (
-//                   <tr>
-//                     <td colSpan={table.getVisibleFlatColumns().length} className={styles.emptyState}>
-//                       <div>
-//                         <Document20Regular className={styles.emptyStateIcon} style={{ fontSize: "32px" }} />
-//                         <Text>No subjects found</Text>
-//                         <Text size={100}>Try adjusting your filters or search terms</Text>
-//                       </div>
-//                     </td>
-//                   </tr>
-//                 )}
-//               </tbody>
-//             </table>
+//                 </tbody>
+//               </table>
+//             )}
 //           </div>
 
 //           {/* Pagination */}
@@ -2705,6 +2796,9 @@
 // }
 
 
+// export default FullyResponsiveFluentTable;
+
+
 "use client"
 import React, { useState, useMemo, useCallback, useEffect, useRef } from "react"
 
@@ -2750,6 +2844,8 @@ import {
   Tooltip as FluentTooltip,
   SearchBox,
   shorthands,
+  Title3,
+  mergeClasses,
 } from "@fluentui/react-components"
 
 // Fluent UI Icons
@@ -2784,7 +2880,7 @@ import {
 } from "@fluentui/react-icons"
 
 // Lucide icons for fallbacks where Fluent doesn't have exact matches
-import { GripVertical } from "lucide-react"
+import { GripVertical, SearchIcon } from "lucide-react"
 import { Stack } from "@fluentui/react"
 
 // Define interfaces for endpoint data
@@ -2819,6 +2915,7 @@ interface TanstackTableWidgetProps {
     className?: string
     style?: React.CSSProperties
   }
+  widgetHeight: number
 }
 
 interface EndpointData {
@@ -2980,21 +3077,29 @@ const useStyles = makeStyles({
     backgroundColor: tokens.colorNeutralBackground1,
     borderRadius: tokens.borderRadiusMedium,
     border: `1px solid ${tokens.colorNeutralStroke2}`,
-    display: "flex", // Added flex to make it a flex container
-    flexDirection: "column", // Stack children vertically
-    flex: 1, // Allow table container to grow and shrink
-    minHeight: 0, // Allow flex item to shrink
+    display: "flex",
+    flexDirection: "column",
+    flex: 1,
+    minHeight: 0,
+    // height: "100%", // Use full available height
+    overflow: "hidden", // Prevent container overflow
   },
   tableWrapper: {
     width: "100%",
-    overflowX: "auto",
     flex: 1,
-    overflowY: "auto",
+    minHeight: 0,
+    overflow: "auto", // Handle both X and Y scrolling
+    display: "flex",
+    flexDirection: "column",
+    scrollbarWidth: 'thin',
+    scrollbarColor: `${tokens.colorNeutralStroke1} transparent`
   },
   table: {
     width: "100%",
     borderCollapse: "collapse",
     tableLayout: "fixed",
+    flex: 1,
+    minHeight: 0,
   },
   tableHeader: {
     backgroundColor: tokens.colorNeutralBackground2,
@@ -3077,6 +3182,9 @@ const useStyles = makeStyles({
   },
   tableBody: {
     backgroundColor: tokens.colorNeutralBackground1,
+    flex: 1,
+    minHeight: 0,
+    overflow: "auto", // Enable scrolling for table body
   },
   tableRow: {
     borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
@@ -3135,9 +3243,18 @@ const useStyles = makeStyles({
     fontSize: tokens.fontSizeBase100,
   },
   emptyState: {
-    padding: `${tokens.spacingVerticalXXL} ${tokens.spacingHorizontalM}`,
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
     textAlign: "center",
-    color: tokens.colorNeutralForeground2,
+    padding: "32px",
+    color: tokens.colorNeutralForeground3,
+    zIndex: 1,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
   },
   emptyStateIcon: {
     marginBottom: tokens.spacingVerticalS,
@@ -3168,6 +3285,10 @@ const useStyles = makeStyles({
       alignItems: "center",
       gap: tokens.spacingHorizontalM,
     },
+  },
+  narrowDropdown: {
+    minWidth: "120px",
+    maxWidth: "150px",
   },
   paginationControls: {
     display: "flex",
@@ -3331,7 +3452,7 @@ const useStyles = makeStyles({
   modalBody: {
     padding: `${tokens.spacingVerticalM} ${tokens.spacingVerticalXL}`,
     overflowY: "auto",
-    maxHeight: "60vh",
+    // maxHeight: "60vh",
   },
   modalGrid: {
     display: "grid",
@@ -4455,7 +4576,7 @@ const StatusBadge = ({ status }: { status: string }) => {
     }
   }
 
-  return <Badge className={`${styles.statusBadge} ${getStatusBadgeClass(status)}`}>{status}</Badge>
+  return <Badge className={mergeClasses(styles.statusBadge, getStatusBadgeClass(status))}>{status}</Badge>
 }
 
 // Compliance Status Indicator
@@ -4488,6 +4609,7 @@ const FullyResponsiveFluentTable: React.FC<TanstackTableWidgetProps> = ({
   title = "Tanstack Table",
   onRemove,
   dragHandleProps,
+  widgetHeight
 }) => {
   const styles = useStyles()
   const [data, setData] = useState<Subject[]>([])
@@ -4530,6 +4652,8 @@ const FullyResponsiveFluentTable: React.FC<TanstackTableWidgetProps> = ({
   const [columnManagementOpen, setColumnManagementOpen] = useState(false)
   const [advancedFiltersOpen, setAdvancedFiltersOpen] = useState(false)
   const [dataManagementOpen, setDataManagementOpen] = useState(false)
+
+  console.log("widgetHeight", widgetHeight)
 
   // Fetch data from endpoint.json
   useEffect(() => {
@@ -4879,7 +5003,12 @@ const FullyResponsiveFluentTable: React.FC<TanstackTableWidgetProps> = ({
   const pageCount = table.getPageCount()
 
   return (
-    <FluentProvider theme={webLightTheme}>
+    <FluentProvider style={{
+      height: widgetHeight || "600px",
+      minHeight: 0,
+      display: "flex",
+      flexDirection: "column"
+    }}>
       <Stack
         horizontal
         horizontalAlign="space-between"
@@ -4889,6 +5018,7 @@ const FullyResponsiveFluentTable: React.FC<TanstackTableWidgetProps> = ({
           padding: tokens.spacingVerticalM,
           backgroundColor: tokens.colorNeutralBackground2,
           borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
+          flexShrink: 0, // Header shouldn't shrink
         }}
       >
         {/* Drag handle area - only this area should be draggable */}
@@ -4919,7 +5049,14 @@ const FullyResponsiveFluentTable: React.FC<TanstackTableWidgetProps> = ({
           </FluentTooltip>
         )}
       </Stack>
-      <div className={styles.container}>
+      <div className={styles.container} style={{
+        padding: tokens.spacingVerticalXXL,
+        display: 'flex',
+        flexDirection: 'column',
+        flex: 1,
+        minHeight: 0,
+        overflow: "hidden",
+      }}>
         <div className={styles.header}>
           <div className={styles.headerTitle}>
             <div className={styles.comboId}>
@@ -5188,153 +5325,159 @@ const FullyResponsiveFluentTable: React.FC<TanstackTableWidgetProps> = ({
         )}
 
         {/* Main Table */}
-        <div className={styles.tableContainer}>
+        <div className={styles.tableContainer} style={{ height: "100%", minHeight: 0 }}>
           <div className={styles.tableWrapper}>
-            <table ref={tableRef} className={styles.table}>
-              <thead className={styles.tableHeader}>
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <tr key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => (
-                      <th
-                        key={header.id}
-                        className={styles.tableHeaderCell}
-                        style={{
-                          width: header.getSize() !== 0 ? header.getSize() : undefined,
-                          minWidth: "120px", // Ensure minimum width for all columns
-                        }}
-                      >
-                        {header.isPlaceholder ? null : (
-                          <>
-                            <div className={styles.tableHeaderContent}>
-                              <div
-                                style={{
-                                  wordBreak: "break-word",
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                  whiteSpace: "nowrap",
-                                  flex: 1,
-                                  minWidth: 0, // Allow flex item to shrink
-                                }}
-                                onDoubleClick={() => header.column.resetSize()}
-                                title={
-                                  typeof header.column.columnDef.header === "string"
-                                    ? header.column.columnDef.header
-                                    : ""
-                                }
-                              >
-                                {flexRender(header.column.columnDef.header, header.getContext())}
-                              </div>
-
-                              <div className={styles.tableHeaderActions}>
-                                {header.column.getCanSort() && (
-                                  <Button
-                                    appearance="subtle"
-                                    size="small"
-                                    icon={
-                                      header.column.getIsSorted() === "asc" ? (
-                                        <ArrowSortUp20Regular />
-                                      ) : header.column.getIsSorted() === "desc" ? (
-                                        <ArrowSortDown20Regular />
-                                      ) : (
-                                        <ArrowSort20Regular />
-                                      )
-                                    }
-                                    onClick={header.column.getToggleSortingHandler()}
-                                    title="Sort column"
-                                  />
-                                )}
-                              </div>
-                            </div>
-                            {header.column.getCanFilter() && (
-                              <div className={styles.filterInput}>
-                                <Input
-                                  size="small"
-                                  placeholder="Filter..."
-                                  value={(header.column.getFilterValue() as string) || ""}
-                                  onChange={(e) => header.column.setFilterValue(e.target.value)}
-                                  onClick={(e) => e.stopPropagation()}
-                                />
-                              </div>
-                            )}
-                          </>
-                        )}
-
-                        <div
-                          onMouseDown={header.getResizeHandler()}
-                          onTouchStart={header.getResizeHandler()}
-                          className={`${styles.columnResizer} ${header.column.getIsResizing() ? styles.columnResizerActive : ""}`}
+            {table.getRowModel().rows.length === 0 ? (
+              <div style={{
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexDirection: "column"
+              }}>
+                <div className={styles.emptyState}>
+                  <SearchIcon className={styles.emptyStateIcon} />
+                  <Title3 style={{ marginBottom: "8px" }}>No results found</Title3>
+                  <Text>Try adjusting your search or filter criteria</Text>
+                </div>
+              </div>
+            ) : (
+              <table ref={tableRef} className={styles.table}>
+                <thead className={styles.tableHeader}>
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <tr key={headerGroup.id}>
+                      {headerGroup.headers.map((header) => (
+                        <th
+                          key={header.id}
+                          className={styles.tableHeaderCell}
                           style={{
-                            position: "absolute",
-                            right: 0,
-                            top: 0,
-                            height: "100%",
-                            width: "5px",
-                            cursor: "col-resize",
-                            userSelect: "none",
-                            touchAction: "none",
-                            backgroundColor: header.column.getIsResizing()
-                              ? tokens.colorBrandBackground
-                              : "transparent",
+                            width: header.getSize() !== 0 ? header.getSize() : undefined,
+                            minWidth: "120px", // Ensure minimum width for all columns
                           }}
-                        />
-                      </th>
-                    ))}
-                  </tr>
-                ))}
-              </thead>
+                        >
+                          {header.isPlaceholder ? null : (
+                            <>
+                              <div className={styles.tableHeaderContent}>
+                                <div
+                                  style={{
+                                    wordBreak: "break-word",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap",
+                                    flex: 1,
+                                    minWidth: 0, // Allow flex item to shrink
+                                  }}
+                                  onDoubleClick={() => header.column.resetSize()}
+                                  title={
+                                    typeof header.column.columnDef.header === "string"
+                                      ? header.column.columnDef.header
+                                      : ""
+                                  }
+                                >
+                                  {flexRender(header.column.columnDef.header, header.getContext())}
+                                </div>
 
-              <tbody className={styles.tableBody}>
-                {table.getRowModel().rows.map((row, index) => (
-                  <tr
-                    key={row.id}
-                    className={`
+                                <div className={styles.tableHeaderActions}>
+                                  {header.column.getCanSort() && (
+                                    <Button
+                                      appearance="subtle"
+                                      size="small"
+                                      icon={
+                                        header.column.getIsSorted() === "asc" ? (
+                                          <ArrowSortUp20Regular />
+                                        ) : header.column.getIsSorted() === "desc" ? (
+                                          <ArrowSortDown20Regular />
+                                        ) : (
+                                          <ArrowSort20Regular />
+                                        )
+                                      }
+                                      onClick={header.column.getToggleSortingHandler()}
+                                      title="Sort column"
+                                    />
+                                  )}
+                                </div>
+                              </div>
+                              {header.column.getCanFilter() && (
+                                <div className={styles.filterInput}>
+                                  <Input
+                                    size="small"
+                                    placeholder="Filter..."
+                                    value={(header.column.getFilterValue() as string) || ""}
+                                    onChange={(e) => header.column.setFilterValue(e.target.value)}
+                                    onClick={(e) => e.stopPropagation()}
+                                  />
+                                </div>
+                              )}
+                            </>
+                          )}
+
+                          <div
+                            onMouseDown={header.getResizeHandler()}
+                            onTouchStart={header.getResizeHandler()}
+                            className={`${styles.columnResizer} ${header.column.getIsResizing() ? styles.columnResizerActive : ""}`}
+                            style={{
+                              position: "absolute",
+                              right: 0,
+                              top: 0,
+                              height: "100%",
+                              width: "5px",
+                              cursor: "col-resize",
+                              userSelect: "none",
+                              touchAction: "none",
+                              backgroundColor: header.column.getIsResizing()
+                                ? tokens.colorBrandBackground
+                                : "transparent",
+                            }}
+                          />
+                        </th>
+                      ))}
+                    </tr>
+                  ))}
+                </thead>
+
+                <tbody className={styles.tableBody} style={{ minHeight: 0, overflowY: "auto" }}  >
+                  {table.getRowModel().rows.map((row, index) => (
+                    <tr
+                      key={row.id}
+                      className={`
                       ${styles.tableRow}
                       ${row.getIsSelected() ? styles.tableRowSelected : ""}
                     `}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <td
-                        key={cell.id}
-                        className={`
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <td
+                          key={cell.id}
+                          className={`
                           ${styles.tableCell}
                           ${cell.getIsGrouped() ? styles.groupedCell : ""}
                           ${cell.getIsAggregated() ? styles.aggregatedCell : ""}
                           ${cell.getIsPlaceholder() ? styles.placeholderCell : ""}
                         `}
-                        style={{ width: cell.column.getSize() }}
-                      >
-                        {cell.getIsGrouped() ? (
-                          <button onClick={row.getToggleExpandedHandler()} className={styles.groupButton}>
-                            {row.getIsExpanded() ? <ChevronDown20Regular /> : <ChevronRight20Regular />}
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                            <span className={styles.groupCount}>{row.subRows.length}</span>
-                          </button>
-                        ) : cell.getIsAggregated() ? (
-                          flexRender(
-                            cell.column.columnDef.aggregatedCell ?? cell.column.columnDef.cell,
-                            cell.getContext(),
-                          )
-                        ) : cell.getIsPlaceholder() ? null : (
-                          flexRender(cell.column.columnDef.cell, cell.getContext())
-                        )}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
+                          style={{ width: cell.column.getSize() }}
+                        >
+                          {cell.getIsGrouped() ? (
+                            <button onClick={row.getToggleExpandedHandler()} className={styles.groupButton}>
+                              {row.getIsExpanded() ? <ChevronDown20Regular /> : <ChevronRight20Regular />}
+                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                              <span className={styles.groupCount}>{row.subRows.length}</span>
+                            </button>
+                          ) : cell.getIsAggregated() ? (
+                            flexRender(
+                              cell.column.columnDef.aggregatedCell ?? cell.column.columnDef.cell,
+                              cell.getContext(),
+                            )
+                          ) : cell.getIsPlaceholder() ? null : (
+                            flexRender(cell.column.columnDef.cell, cell.getContext())
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
 
-                {table.getRowModel().rows.length === 0 && (
-                  <tr>
-                    <td colSpan={table.getVisibleFlatColumns().length} className={styles.emptyState}>
-                      <div>
-                        <Document20Regular className={styles.emptyStateIcon} style={{ fontSize: "32px" }} />
-                        <Text>No subjects found</Text>
-                        <Text size={100}>Try adjusting your filters or search terms</Text>
-                      </div>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                </tbody>
+              </table>
+            )}
           </div>
 
           {/* Pagination */}
@@ -5357,6 +5500,7 @@ const FullyResponsiveFluentTable: React.FC<TanstackTableWidgetProps> = ({
               <Dropdown
                 value={table.getState().pagination.pageSize.toString()}
                 onOptionSelect={(e, data) => table.setPageSize(Number(data.optionValue))}
+                className={styles.narrowDropdown}
               >
                 {[10, 25, 50, 100, 200].map((pageSize) => (
                   <Option key={pageSize} text={`${pageSize} per page`} value={pageSize.toString()}>

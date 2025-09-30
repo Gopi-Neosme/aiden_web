@@ -4,6 +4,7 @@ import "@/styles/globals.css";
 import Sidebar from "@/components/Sidebar";
 import FluentRoot from './_theme/FluentRoot';
 import ThemeRegistry from './_theme/ThemeRegistry';
+import { WidgetProvider } from '@/components/WidgetContext';
 
 export const metadata: Metadata = {
   title: "Aiden Dashboard",
@@ -24,12 +25,14 @@ export default function RootLayout({
       <body className="antialiased">
         <ThemeRegistry>
           <FluentRoot initialMode="light" dir="ltr">
-            <div className="app-layout">
-              <Sidebar />
-              <main className="app-content">
-                {children}
-              </main>
-            </div>
+            <WidgetProvider>
+              <div className="app-layout">
+                <Sidebar />
+                <main className="app-content">
+                  {children}
+                </main>
+              </div>
+            </WidgetProvider>
           </FluentRoot>
         </ThemeRegistry>
       </body>

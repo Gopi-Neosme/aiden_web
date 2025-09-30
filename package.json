@@ -10,10 +10,13 @@
   },
   "dependencies": {
     "@fluentui/react": "^8.123.6",
+    "@fluentui/react-charting": "^5.24.32",
     "@fluentui/react-components": "^9.70.0",
     "@fluentui/react-icons": "^2.0.310",
     "@griffel/react": "^1.5.30",
     "@tanstack/react-table": "^8.21.3",
+    "@types/better-sqlite3": "^7.6.13",
+    "better-sqlite3": "^12.4.1",
     "chart.js": "^4.5.0",
     "chartjs": "^0.3.24",
     "chartjs-adapter-date-fns": "^3.0.0",
@@ -22,6 +25,7 @@
     "date-fns": "^2.30.0",
     "dotenv": "^17.2.2",
     "lucide-react": "^0.544.0",
+    "mssql": "^11.0.1",
     "next": "15.5.4",
     "react": "19.1.0",
     "react-chartjs-2": "^5.3.0",
@@ -30,12 +34,14 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@types/mssql": "^9.1.8",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/react-grid-layout": "^1.3.5",
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
+    "tsx": "^4.20.6",
     "typescript": "^5"
   }
 }

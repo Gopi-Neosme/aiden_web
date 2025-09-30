@@ -8,7 +8,6 @@
 
 
 module.exports = {
-  experimental: {
-    turbopack: false, // Disable Turbopack
-  },
+  // Turbopack configuration removed - not a valid Next.js config option
+  // To disable Turbopack, use 'next dev' instead of 'next dev --turbopack'
 };

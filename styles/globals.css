@@ -30,21 +30,21 @@ a {
 
 .app-content {
   flex: 1;
-  margin-left: 280px; /* Width of expanded sidebar */
+  margin-left: 280px; 
   transition: margin-left 0.2s ease-in-out;
   min-height: 100vh;
-  padding: 24px;
+  /* padding: 24px; */
+  padding: 10px;
   background-color: var(--colorNeutralBackground2, #fafafa);
 }
 
 body.sidebar-collapsed .app-content {
-  margin-left: 60px; /* Width of collapsed sidebar */
+  margin-left: 60px; 
 }
 
-/* Enhanced responsiveness with Fluent UI breakpoints */
 @media (max-width: 1200px) {
   .app-content {
-    margin-left: 60px; /* Collapse sidebar on medium screens */
+    margin-left: 60px;
   }
 }
 
@@ -55,7 +55,6 @@ body.sidebar-collapsed .app-content {
   }
 }
 
-/* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .app-content {
     background-color: var(--colorNeutralBackground2, #1e1e1e);
